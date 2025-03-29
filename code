@@ -1,0 +1,143 @@
+CREATE TABLE DEPARTMENT ( 
+    dName VARCHAR2(15) NOT NULL, 
+    dNumber INT NOT NULL, 
+    mngSSN CHAR(9), 
+    mngStartDate DATE, 
+    PRIMARY KEY (dNumber), 
+    UNIQUE (dName)
+);
+
+CREATE TABLE EMPLOYEE (
+    fName VARCHAR2(15) NOT NULL, 
+    lName VARCHAR2(15) NOT NULL, 
+    eSSN CHAR(9) NOT NULL, 
+    bDate DATE, 
+    address VARCHAR2(30), 
+    sex CHAR, 
+    salary DECIMAL(10,2), 
+    deptNo INT NOT NULL, 
+    PRIMARY KEY (eSSN), 
+    FOREIGN KEY (deptNo) REFERENCES DEPARTMENT (dNumber)
+);
+
+CREATE TABLE PROJECT ( 
+    pName VARCHAR2(15) NOT NULL, 
+    pID INT NOT NULL, 
+    pLocation VARCHAR2(15), 
+    deptNo INT NOT NULL, 
+    PRIMARY KEY (pID), 
+    UNIQUE (pName), 
+    FOREIGN KEY (deptNo) REFERENCES DEPARTMENT (dNumber)
+);
+
+CREATE TABLE WORKS_ON ( 
+    eSSN CHAR(9) NOT NULL, 
+    pID INT NOT NULL, 
+    hours DECIMAL(3,1) NOT NULL, 
+    PRIMARY KEY (eSSN,pID), 
+    FOREIGN KEY (eSSN) REFERENCES EMPLOYEE (eSSN), 
+    FOREIGN KEY (pID) REFERENCES PROJECT (pID)
+);  
+
+CREATE TABLE DEPENDENT ( 
+    eSSN CHAR(9) NOT NULL, 
+    name VARCHAR2(15) NOT NULL, 
+    sex CHAR, 
+    bDate DATE, 
+    relationship VARCHAR2(8), 
+    PRIMARY KEY (eSSN,name), 
+    FOREIGN KEY (eSSN) REFERENCES EMPLOYEE (eSSN)
+);
+
+INSERT INTO DEPARTMENT (dName, dNumber, mngSSN, mngStartDate) 
+VALUES ('Sales', 1, '123456789', TO_DATE('01-JAN-2000', 'DD-MON-YYYY'));
+
+INSERT INTO DEPARTMENT (dName, dNumber, mngSSN, mngStartDate) 
+VALUES ('HR', 2, '987654321', TO_DATE('15-FEB-2005', 'DD-MON-YYYY'));
+
+INSERT INTO DEPARTMENT (dName, dNumber, mngSSN, mngStartDate) 
+VALUES ('IT', 3, '555667777', TO_DATE('23-JUL-2010', 'DD-MON-YYYY'));
+
+
+INSERT INTO EMPLOYEE (fName, lName, eSSN, bDate, address, sex, salary, deptNo)
+VALUES ('John', 'Doe', '123456789', TO_DATE('01-JAN-1980', 'DD-MON-YYYY'), '123 Main St, City, Country', 'M', 50000, 1);
+
+INSERT INTO EMPLOYEE (fName, lName, eSSN, bDate, address, sex, salary, deptNo)
+VALUES ('Jane', 'Smith', '987654321', TO_DATE('22-FEB-1985', 'DD-MON-YYYY'), '456 Elm St, City, Country', 'F', 60000, 2);
+
+INSERT INTO EMPLOYEE (fName, lName, eSSN, bDate, address, sex, salary, deptNo)
+VALUES ('Alice', 'Johnson', '555667777', TO_DATE('30-SEP-1990', 'DD-MON-YYYY'), '789 Oak St, City, Country', 'F', 55000, 3);
+
+
+INSERT INTO PROJECT (pName, pID, pLocation, deptNo)
+VALUES ('ProductA', 1, 'New York', 1);
+
+INSERT INTO PROJECT (pName, pID, pLocation, deptNo)
+VALUES ('ProductB', 2, 'San Francisco', 2);
+
+INSERT INTO PROJECT (pName, pID, pLocation, deptNo)
+VALUES ('ProductC', 3, 'Los Angeles', 3);
+
+
+INSERT INTO WORKS_ON (eSSN, pID, hours)
+VALUES ('123456789', 1, 40);
+
+INSERT INTO WORKS_ON (eSSN, pID, hours)
+VALUES ('987654321', 2, 35);
+
+INSERT INTO WORKS_ON (eSSN, pID, hours)
+VALUES ('555667777', 3, 30);
+
+
+INSERT INTO DEPENDENT (eSSN, name, sex, bDate, relationship)
+VALUES ('123456789', 'Michael', 'M', TO_DATE('04-JAN-1988', 'DD-MON-YYYY'), 'Son');
+
+INSERT INTO DEPENDENT (eSSN, name, sex, bDate, relationship)
+VALUES ('987654321', 'Abner', 'M', TO_DATE('20-FEB-1942', 'DD-MON-YYYY'), 'Spouse');
+
+INSERT INTO DEPENDENT (eSSN, name, sex, bDate, relationship)
+VALUES ('555667777', 'Lily', 'F', TO_DATE('12-NOV-1995', 'DD-MON-YYYY'), 'Daughter');
+
+
+create view chosenone as 
+select fname,lname
+from EMPLOYEE
+where DEPTNO=1;
+
+select * from CHOSENONE;
+
+create view department_info as
+select d.dname,d.dnumber,e.fname,e.lname,d.mngStartDate
+from department d
+left join EMPLOYEE e on d.mngssn=e.essn;
+
+select * from DEPARTMENT_INFO;
+
+create view project_details as 
+select p.pid,p.pname,p.pLocation,d.dname
+from project p
+join DEPARTMENT d on p.DEPTNO=d.DNUMBER;
+
+select * from PROJECT_DETAILS;
+
+create view workson_detail AS 
+select w.essn,e.fname,e.lname,p.pname,w.hours
+from WORKS_ON w
+JOIN EMPLOYEE e on w.ESSN=e.essn
+join project p on w.PID = p.PID;
+
+select * from WORKSON_DETAIL;
+
+create view dependent_detais as 
+select d.essn,e.fname,e.lname,d.name,d.sex,d.bDate,d.relationship
+from DEPENDENT d
+join EMPLOYEE e on d.ESSN=e.ESSN;
+
+select * from DEPENDENT_DETAIS;
+
+create view EMPLOYEE_details as
+SELECT  E.eSSN, E.fName, E.lName, E.bDate, E.address, E.sex, E.salary, D.dName 
+from EMPLOYEE e
+ join DEPARTMENT d on e.DEPTNO=d.DNumber;
+
+ SELECT* from EMPLOYEE_DETAILS;
